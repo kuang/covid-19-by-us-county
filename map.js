@@ -2,6 +2,15 @@
 const width = 1280;
 const height = 720;
 
+let selected_day = "2020-01-21";
+let most_recent_day, color;
+let most_num_cases = 0;
+
+const svg = d3.select("div#map")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
 // D3 Projection
 const projection = d3.geoAlbersUsa()
     .translate([width / 2, height / 2])    // translate to center of screen
@@ -11,22 +20,108 @@ const projection = d3.geoAlbersUsa()
 const path = d3.geoPath()     // path generator that will convert GeoJSON to SVG paths
     .projection(projection);  // tell path generator to use albersUsa projection
 
+const cleaned_data = {};
 
+d3.csv('us-counties.csv').then(data => {
 
+    data.forEach(dp => {
 
-d3.json('gz_2010_us_050_00_20m.json').then(data => {
+        if (parseInt(dp.cases) > most_num_cases) {
+            most_num_cases = parseInt(dp.cases);
+        }
+        // new day
+        most_recent_day = dp.date;
 
-    let svg = d3.select("div#map")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    svg.selectAll("path")
-        .data(data.features)
-        .enter()
-        .append("path")
-        .attr("d", path)
-        .attr('fill', 'white')
-        .attr('stroke', 'black')
-        .attr("stroke-width", '1px');
+        // usually id is fips, but for specific places like NYC it's the county name
+        const dp_id = dp.fips != "" ? dp.fips : dp.county;
+        if (!(dp.date in cleaned_data)) cleaned_data[dp.date] = {};
+        cleaned_data[dp.date][dp_id] = dp;
+    });
 });
+
+function loadMap() {
+    d3.json('county.geojson').then(data => {
+        today_covid_data = cleaned_data[selected_day];
+
+        svg.selectAll("path")
+            .data(data.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr('fill', function (d) {
+                const dfips = d.properties.FIPS_CODE.replace('-', '');
+                if (dfips in today_covid_data)
+                    return "red";
+
+                // handle NYC- sigh
+                if (d.properties.COUNTY_STATE_NAME.includes("New York City")) {
+                    if ("New York City" in today_covid_data)
+                        return "red";
+                }
+                return "white";
+            })
+            .attr('stroke', 'black')
+            .attr("stroke-width", '1px');
+    });
+}
+
+function updateMap() {
+    let temp_max_cases = 0;
+    const today_data = cleaned_data[selected_day];
+
+    Object.values(today_data).forEach(dp => {
+        if (parseInt(dp.cases) > temp_max_cases) temp_max_cases = parseInt(dp.cases);
+    });
+
+    color = d3.scaleLog().domain([1, temp_max_cases])
+        .range(["rgba(205, 0, 0, 0.1)", "rgba(205, 0, 0, 1)"]);
+    // .range([d3.rgb("#FF7A7A"), d3.rgb('#5D0D02')]);
+
+
+    svg.selectAll('path')
+        .attr('fill', function (d) {
+            const dfips = d.properties.FIPS_CODE.replace('-', '');
+
+            if (dfips in today_data)
+                // return "red";
+                return color(today_data[dfips].cases);
+            // handle NYC- sigh
+            if (d.properties.COUNTY_STATE_NAME.includes("New York City")) {
+                if ("New York City" in today_data)
+                    return color(today_data["New York City"].cases);
+            }
+            return "white";
+        });
+
+
+}
+
+// takes in a date-string, returns a date-string
+function incrementSelectedDay() {
+    const dayObj = new Date(selected_day);
+    dayObj.setTime(dayObj.getTime() + 86400000);
+    selected_day = dayObj.toISOString().slice(0, 10);
+    dayObj.setTime(dayObj.getTime() + 86400000);
+    document.getElementById('curr_day').innerHTML = dayObj.toLocaleDateString();
+}
+
+// returns a nicely formatted datestring from selected_day
+function formattedSelectedDay() {
+    return selected_day;
+}
+
+function incrementDayAndReload() {
+    if (selected_day != most_recent_day) {
+        incrementSelectedDay();
+        updateMap();
+    }
+}
+
+loadMap();
+// selected_day = '2020-03-15';
+// updateMap();
+
+
+
+
+
