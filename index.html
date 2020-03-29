@@ -5,6 +5,9 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <style>
+        #title {
+            margin: 20px;
+        }
         .info {
             font-size: 30px;
             margin-top: 15px;
@@ -15,11 +18,12 @@
 
 
 <body>
-    <h1>Daily spread of Covid-19 by US County</h1>
+    <h1 id ="title">Daily spread of Covid-19 by US County</h1>
     <div id="map"></div>
     <div class="info" id = "curr_day">1/21/2020</div>
     <input class="info" id="button" type="button" value="Next Day" onclick="incrementDayAndReload();" />
-
+    <input class="info" id="button" type="button" value="Play" onclick="startInt();" />
+    <input class="info" id="button" type="button" value="Pause" onclick="stopInt();" />
 
     <script src="map.js"></script>
 

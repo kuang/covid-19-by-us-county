@@ -6,6 +6,9 @@ let selected_day = "2020-01-21";
 let most_recent_day, color;
 let most_num_cases = 0;
 
+// animation
+let inter = null;
+
 const svg = d3.select("div#map")
     .append("svg")
     .attr("width", width)
@@ -108,6 +111,17 @@ function incrementDayAndReload() {
         incrementSelectedDay();
         updateMap();
     }
+}
+
+
+function startInt() {
+    if(!!inter) {
+        return;
+      }    
+    inter = window.setInterval(incrementDayAndReload, 400);
+}
+function stopInt() {
+    clearInterval(inter);
 }
 
 loadMap();
