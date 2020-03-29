@@ -1,6 +1,6 @@
 //Width and height of map
 const width = 1280;
-const height = 720;
+const height = 600;
 
 let selected_day = "2020-01-21";
 let most_recent_day, color;
@@ -13,8 +13,8 @@ const svg = d3.select("div#map")
 
 // D3 Projection
 const projection = d3.geoAlbersUsa()
-    .translate([width / 2, height / 2])    // translate to center of screen
-    .scale([1000]);          // scale things down so see entire US
+    .translate([width / 2.5, height / 2])    // translate to center of screen
+    .scale([1300]);          // scale things down so see entire US
 
 // Define path generator
 const path = d3.geoPath()     // path generator that will convert GeoJSON to SVG paths
@@ -74,8 +74,7 @@ function updateMap() {
     });
 
     color = d3.scaleLog().domain([1, temp_max_cases])
-        .range(["rgba(205, 0, 0, 0.1)", "rgba(205, 0, 0, 1)"]);
-    // .range([d3.rgb("#FF7A7A"), d3.rgb('#5D0D02')]);
+        .range(["rgba(205, 0, 0, 0.15)", "rgba(205, 0, 0, 1)"]);
 
 
     svg.selectAll('path')
@@ -83,7 +82,6 @@ function updateMap() {
             const dfips = d.properties.FIPS_CODE.replace('-', '');
 
             if (dfips in today_data)
-                // return "red";
                 return color(today_data[dfips].cases);
             // handle NYC- sigh
             if (d.properties.COUNTY_STATE_NAME.includes("New York City")) {
@@ -105,11 +103,6 @@ function incrementSelectedDay() {
     document.getElementById('curr_day').innerHTML = dayObj.toLocaleDateString();
 }
 
-// returns a nicely formatted datestring from selected_day
-function formattedSelectedDay() {
-    return selected_day;
-}
-
 function incrementDayAndReload() {
     if (selected_day != most_recent_day) {
         incrementSelectedDay();
@@ -118,8 +111,6 @@ function incrementDayAndReload() {
 }
 
 loadMap();
-// selected_day = '2020-03-15';
-// updateMap();
 
 
 
