@@ -3,6 +3,8 @@ const width = 1280;
 const height = 600;
 
 let selected_day = "2020-01-21";
+let first_day = "2020-01-21";
+
 let most_recent_day, color;
 let most_num_cases = 0;
 
@@ -42,14 +44,20 @@ d3.csv('us-counties.csv').then(data => {
     });
 });
 
-// function startInt() {
-//     if(!!inter) {
-//         return;
-//       }    
-//     inter = window.setInterval(incrementDayAndReload, 400);
-// }
+function stopInt() {
+    clearInterval(inter);
+}
+function startInt() {
+    if (!!inter) {
+        return;
+    }
+    inter = window.setInterval(incrementDayAndReload, 250);
+}
 
 function loadMap() {
+    let infoItems = document.getElementsByClassName("info");
+    for (item of infoItems) item.style.display = 'none';
+
     d3.json('county.geojson').then(data => {
         today_covid_data = cleaned_data[selected_day];
 
@@ -72,6 +80,7 @@ function loadMap() {
             })
             .attr('stroke', 'black')
             .attr("stroke-width", '1px');
+        for (item of infoItems) item.style.display = 'inline-block';
     });
 }
 
@@ -109,6 +118,19 @@ function incrementSelectedDay() {
     const dayObj = new Date(selected_day);
     dayObj.setTime(dayObj.getTime() + 86400000);
     selected_day = dayObj.toISOString().slice(0, 10);
+
+    // i hate dates- toLocaleDateString() accounts for time zones, so gonna add another day here
+    dayObj.setTime(dayObj.getTime() + 86400000);
+    document.getElementById('curr_day').innerHTML = dayObj.toLocaleDateString();
+}
+
+// takes in a date-string, returns a date-string
+function decrementSelectedDay() {
+    const dayObj = new Date(selected_day);
+    dayObj.setTime(dayObj.getTime() - 86400000);
+    selected_day = dayObj.toISOString().slice(0, 10);
+
+    // i hate dates- toLocaleDateString() accounts for time zones, so gonna add another day here
     dayObj.setTime(dayObj.getTime() + 86400000);
     document.getElementById('curr_day').innerHTML = dayObj.toLocaleDateString();
 }
@@ -120,16 +142,12 @@ function incrementDayAndReload() {
     }
 }
 
-function stopInt() {
-    clearInterval(inter);
+function decrementDayAndReload() {
+    if (selected_day != first_day) {
+        decrementSelectedDay();
+        updateMap();
+    }
 }
-function startInt() {
-    if(!!inter) {
-        return;
-      }    
-    inter = window.setInterval(incrementDayAndReload, 350);
-}
-
 loadMap();
 
 
