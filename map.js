@@ -42,6 +42,13 @@ d3.csv('us-counties.csv').then(data => {
     });
 });
 
+// function startInt() {
+//     if(!!inter) {
+//         return;
+//       }    
+//     inter = window.setInterval(incrementDayAndReload, 400);
+// }
+
 function loadMap() {
     d3.json('county.geojson').then(data => {
         today_covid_data = cleaned_data[selected_day];
@@ -77,7 +84,7 @@ function updateMap() {
     });
 
     color = d3.scaleLog().domain([1, temp_max_cases])
-        .range(["rgba(205, 0, 0, 0.15)", "rgba(205, 0, 0, 1)"]);
+        .range(["rgba(205, 0, 0, 0.1)", "rgba(205, 0, 0, 1)"]);
 
 
     svg.selectAll('path')
@@ -113,15 +120,14 @@ function incrementDayAndReload() {
     }
 }
 
-
+function stopInt() {
+    clearInterval(inter);
+}
 function startInt() {
     if(!!inter) {
         return;
       }    
-    inter = window.setInterval(incrementDayAndReload, 400);
-}
-function stopInt() {
-    clearInterval(inter);
+    inter = window.setInterval(incrementDayAndReload, 350);
 }
 
 loadMap();
