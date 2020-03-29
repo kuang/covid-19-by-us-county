@@ -14,7 +14,7 @@ const svg = d3.select("div#map")
 // D3 Projection
 const projection = d3.geoAlbersUsa()
     .translate([width / 2.5, height / 2])    // translate to center of screen
-    .scale([1300]);          // scale things down so see entire US
+    .scale([1200]);          // scale things down so see entire US
 
 // Define path generator
 const path = d3.geoPath()     // path generator that will convert GeoJSON to SVG paths
