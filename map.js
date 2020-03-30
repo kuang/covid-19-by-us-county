@@ -78,8 +78,8 @@ function loadMap() {
                 }
                 return "white";
             })
-            .attr('stroke', 'black')
-            .attr("stroke-width", '1px');
+            .attr('stroke', '#D4D4D4')
+            .attr("stroke-width", '0.7px');
         for (item of infoItems) item.style.display = 'inline-block';
     });
 }
