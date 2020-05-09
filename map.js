@@ -27,7 +27,7 @@ const path = d3.geoPath()     // path generator that will convert GeoJSON to SVG
 
 const cleaned_data = {};
 
-d3.csv('us-counties.csv').then(data => {
+d3.csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv").then(data => {
 
     data.forEach(dp => {
 
@@ -42,6 +42,7 @@ d3.csv('us-counties.csv').then(data => {
         if (!(dp.date in cleaned_data)) cleaned_data[dp.date] = {};
         cleaned_data[dp.date][dp_id] = dp;
     });
+    loadMap();
 });
 
 function stopInt() {
@@ -65,7 +66,6 @@ function loadMap() {
             .data(data.features)
             .enter()
             .append("path")
-            .attr("d", path)
             .attr('fill', function (d) {
                 const dfips = d.properties.FIPS_CODE.replace('-', '');
                 if (dfips in today_covid_data)
@@ -78,6 +78,7 @@ function loadMap() {
                 }
                 return "white";
             })
+            .attr("d", path)
             .attr('stroke', '#D4D4D4')
             .attr("stroke-width", '0.7px');
         for (item of infoItems) item.style.display = 'inline-block';
@@ -148,7 +149,6 @@ function decrementDayAndReload() {
         updateMap();
     }
 }
-loadMap();
 
 
 
